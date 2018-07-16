@@ -26,7 +26,7 @@ def train_offical_dataset():
     print('y = ',y)
     print('y_ = ',y_)
 
-    cross_entropy = -tf.reduce_sum(y_*tf.log(y))  ### 定义损失函数
+    cross_entropy = -tf.reduce_sum(y_*tf.log(y))  ### 定义损失函数 reduce_sum就是求和
 
     train_step = tf.train.GradientDescentOptimizer(0.01).minimize(cross_entropy) ## 定义梯度下降训练，使损失函数最小
 
@@ -35,11 +35,19 @@ def train_offical_dataset():
     sess = tf.Session()
     sess.run(init)
 
+    ## 这个训练的过程，其实就是改变W和b的权重的过程
     for i in range(1000):  ## 开始训练，训练1000次，每次随机从训练集中取100张图片
-      batch_xs, batch_ys = mnist.train.next_batch(100)
-      sess.run(train_step, feed_dict={x: batch_xs, y_: batch_ys})  ## 这里x: batch_xs即用x替换之前的占位符x 。y_同理
+        batch_xs, batch_ys = mnist.train.next_batch(100)
+        sess.run(train_step, feed_dict={x: batch_xs, y_: batch_ys})  ## 这里x: batch_xs即用x替换之前的占位符x 。y_同理
+        if i%100 == 0:
+            print("i = ",i)
+            print("w =",sess.run(W) )  ## 为什么W总是zero ?
+            print("b =",sess.run(b) )
+            print("\n\n")
     ## 这行代码会返回一个行向量， correct_prediction size为100 ，即每张图片是否预测准确了.bool 类型 [1,0,1...1]
     ##   ## 疑问？这里的y和y_ 包含多少数据?
+    #print("## y = ",sess.run(y))  ## 这里打印会报错，应为x 还没有填充
+    #print("## y_ = ", sess.run(y_)) ## 同理
     correct_prediction = tf.equal(tf.argmax(y,1), tf.argmax(y_,1)) ## tf.argmax(y,1) 返回y向量最大的那个值的下标
     #print("correct_prediction = %s,len(correct_prediction) = %s"%(correct_prediction,len(correct_prediction)))
     print("correct_prediction = ",correct_prediction)
@@ -52,7 +60,7 @@ def train_offical_dataset():
     accuracy_rate = sess.run(accuracy, feed_dict={x: mnist.test.images, y_: mnist.test.labels})
     print("%d张测试集图片预测准确率:%s"%(TRAIN_LEN,accuracy_rate)) ## must %s , not %d
     print("acc =", accuracy_rate)
-    return accuracy,x,y_,mnist,sess,y
+    return accuracy,x,y_,mnist,sess,y   ## 训练结束后，其实就是得到了最终W和b的值
 
 
 ###########################对每一张图片，打印训练结果 #############################################################################
@@ -68,12 +76,12 @@ def test_simple(MNIST_data_dir,x, y_, sess, y):
     #for i in range(0, len(mnist.test.images)):
     mnist = input_data.read_data_sets(MNIST_data_dir, one_hot=True)
 
-    TRAIN_LEN = len(mnist.test.images)  ## TRAIN_LEN = 1W
+    TEST_IMAGE_LEN = len(mnist.test.images)  ## TRAIN_LEN = 1W
     SAMPLE_LEN = 10
-    if (SAMPLE_LEN > TRAIN_LEN):
-        SAMPLE_LEN = TRAIN_LEN
-    ## 从0~TRAIN_LEN 中随机取出SAMPLE_LEN个数
-    list_random_int = random.sample(range(0, TRAIN_LEN), SAMPLE_LEN) ## index = 1364 或 9430的图片识别不准
+    if (SAMPLE_LEN > TEST_IMAGE_LEN):
+        SAMPLE_LEN = TEST_IMAGE_LEN
+    ## 从0~TEST_IMAGE_LEN 中随机取出SAMPLE_LEN个数
+    list_random_int = random.sample(range(0, TEST_IMAGE_LEN), SAMPLE_LEN) ## index = 1364 或 9430的图片识别不准
     print("list_random_int = ",list_random_int)
     sucess_count = 0
     for i,value in enumerate(list_random_int):
@@ -96,7 +104,7 @@ def test_simple(MNIST_data_dir,x, y_, sess, y):
           sucess_count += 1
           print("sucess_count = ",sucess_count)
 
-        ## 从mnist.test.images放过画出图片
+        ## 从mnist.test.images反过来画出图片
         one_pic_arr = np.reshape(mnist.test.images[value], (28, 28))
         pic_matrix = np.matrix(one_pic_arr, dtype="float")
         plt.imshow(pic_matrix)
