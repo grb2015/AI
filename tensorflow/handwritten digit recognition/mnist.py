@@ -1,5 +1,8 @@
 #ref http://www.tensorfly.cn/tfdoc/tutorials/mnist_beginners.html
 #    https://www.cnblogs.com/lizheng114/p/7439556.html
+## brief : use  softmax regression to  recognition handwritten digit
+# TODO(rbguo)  we need to draw a picture and resize it into  28*28  , and then copy it to MNIST_data_myself/
+
 import input_data
 import tensorflow as tf
 import numpy as np
@@ -54,11 +57,21 @@ def train_offical_dataset():
 
 ###########################对每一张图片，打印训练结果 #############################################################################
 def test_offfical_simple(x,y_,sess,y):
+    MNIST_data_dir = "MNIST_data/"
+    test_simple(MNIST_data_dir,x, y_, sess, y)
+
+def test_myself_handwrite_digit(x,y_,sess,y):
+    NIST_data_dir = "MNIST_data_myself/"
+    test_simple(NIST_data_dir, x, y_, sess, y)
+
+def test_simple(MNIST_data_dir,x, y_, sess, y):
     #for i in range(0, len(mnist.test.images)):
-    mnist = input_data.read_data_sets("MNIST_data/", one_hot=True)
+    mnist = input_data.read_data_sets(MNIST_data_dir, one_hot=True)
 
     TRAIN_LEN = len(mnist.test.images)  ## TRAIN_LEN = 1W
     SAMPLE_LEN = 10
+    if (SAMPLE_LEN > TRAIN_LEN):
+        SAMPLE_LEN = TRAIN_LEN
     ## 从0~TRAIN_LEN 中随机取出SAMPLE_LEN个数
     list_random_int = random.sample(range(0, TRAIN_LEN), SAMPLE_LEN) ## index = 1364 或 9430的图片识别不准
     print("list_random_int = ",list_random_int)
@@ -99,7 +112,7 @@ def test_offfical_simple(x,y_,sess,y):
 
     print("随机%d张测试集图片预测准确率:%s" % (SAMPLE_LEN,percent_sucess_rate ))  ## must %s , not %d
 
-def test(accuracy,x,y_,sess):
+def test(accuracy,x,y_,sess):  ### 这里用到了accuracy也是可以的，注意和test_simpleq区分
     print("----------------------------------------")
     mnist = input_data.read_data_sets("MNIST_data/", one_hot=True)
 
@@ -118,4 +131,5 @@ if __name__ == '__main__':
     accuracy,x,y_,mnist,sess,y = train_offical_dataset()
     #test(accuracy,x,y_,sess)
     test_offfical_simple(x,y_,sess,y)
+    test_myself_handwrite_digit(x,y_,sess,y)
 
