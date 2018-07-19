@@ -45,8 +45,12 @@ def train_offical_dataset():
             print("b =",sess.run(b) )
             print("\n\n")
     ## 这行代码会返回一个行向量， correct_prediction size为100 ，即每张图片是否预测准确了.bool 类型 [1,0,1...1]
-    ##   ## 疑问？这里的y和y_ 包含多少数据?
-    #print("## y = ",sess.run(y))  ## 这里打印会报错，应为x 还没有填充
+    ## 疑问？这里的y和y_ 包含多少数据?
+    ##   答： 实际上只是定义了correct_prediction = tf.equal(tf.argmax(y,1), tf.argmax(y_,1)),下面对测试dataset
+    ## 的操作，自然会给定y_,y : accuracy_rate = sess.run(accuracy, feed_dict={x: mnist.test.images, y_: mnist.test.labels})
+    ##   所以 y_ 就是   y_: mnist.test.label
+
+    #print("## y = ",sess.run(y))  ## 这里打印会报错，因为x 还没有填充
     #print("## y_ = ", sess.run(y_)) ## 同理
     correct_prediction = tf.equal(tf.argmax(y,1), tf.argmax(y_,1)) ## tf.argmax(y,1) 返回y向量最大的那个值的下标
     #print("correct_prediction = %s,len(correct_prediction) = %s"%(correct_prediction,len(correct_prediction)))
