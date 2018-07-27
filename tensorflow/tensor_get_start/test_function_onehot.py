@@ -25,20 +25,59 @@ def ref_one_hot(x, shape):
 '''
 def ref_one_hot(x, shape):
 	print("----enter ref_one_hot --------")
-	print("x = ",x)
-	print("shape = ",shape)
+	#print("x = ",x)
+	#print("shape = ",shape)
 	x0_shape = (x.shape[0],) + shape  ##(10,10)
-	print("x0_shape = {},type(x0_shape)={}".format(x0_shape,type(x0_shape)))
+	#print("x0_shape = {},type(x0_shape)={}".format(x0_shape,type(x0_shape)))
 	result = np.zeros((x.shape[0],) + shape)  ## 做一个x.shape[0] * shape的矩阵
-	print("## result =",result)
-	print("---------------")
+	#print("## result =",result)
+	#print("---------------")
 	arrange_shape = np.arange(x.shape[0]) ## 其实这里就是传进来的x ,只不过要确保它是np对象
-	print("arrange_shape = {},type(arrange_shape)={}".format(arrange_shape,type(arrange_shape)))
+	#print("arrange_shape = {},type(arrange_shape)={}".format(arrange_shape,type(arrange_shape)))
 	x_flatten = x.flatten() 
-	print("x_flatten = {},type(x_flatten)={}".format(x_flatten,type(x_flatten)))
+	#print("x_flatten = {},type(x_flatten)={}".format(x_flatten,type(x_flatten)))
 	result[np.arange(x.shape[0]), x.flatten()] = 1
-	print("-----return  ref_one_hot ----------")
+	#print("-----return  ref_one_hot ----------")
 	return result
+
+
+@pytest.mark.parametrize("seed", [313])
+@pytest.mark.parametrize("base_axis, weight_shape",
+                         [(1, (12, 2, 3)), (2, (4, 4))])
+@pytest.mark.parametrize("bias", [True, False])
+def test_affine_forward_backward(seed, base_axis, weight_shape, bias,):
+
+	print("#### [test_afffile.py] ")
+	print("base_axis={}, weight_shape ={},bias = {}".format(base_axis,weight_shape,bias))
+	rng = np.random.RandomState(seed)
+	inputs = [rng.randn(2, 3, 4).astype(np.float32)]
+	print("### inputs 1 = ",inputs)
+
+	randn_weight_shape = rng.randn(*weight_shape).astype(np.float32)
+	print("\n\n### randn_weight_shape = ",randn_weight_shape)
+	# Weight
+	#inputs += [rng.randn(*weight_shape).astype(np.float32)]
+	inputs += [randn_weight_shape]
+	print("\n\n### inputs 2 = ",inputs)
+	# Bias
+	if bias:
+		'''
+			### if weight_shape == (4,4)  and True 
+					then randn_weight_shape1 =  [-0.54262954  0.80629706 -1.9238455   0.25694698]
+				elif weight_shape == (12, 2, 3) and True
+					then randn_weight_shape1 =  [[ 1.7160246  -1.0807056   0.19310513],[-0.6778587   0.39534003 -0.9743664 ]]
+ 					-->shape(3*3)
+		'''
+		randn_weight_shape1 = rng.randn(*weight_shape[1:]).astype(np.float32)
+		print("\n\n ### randn_weight_shape1 = ",randn_weight_shape1)
+		#inputs += [rng.randn(*weight_shape[1:]).astype(np.float32)]
+		inputs += [randn_weight_shape1]
+		print("\n\n### if inputs 3 = ",inputs)
+	else:
+		inputs += [None]
+		print("\n\n### else inputs 3 = ",inputs)
+	print("---------------------end------------------------------------------------")
+
 '''
 ### test use @pytest.mark.parametrize
 @pytest.mark.parametrize("seed", [313])
@@ -53,7 +92,8 @@ def test_one_hot_forward(seed, inshape, shape,): ## inshape is also a tulpe
     print("### input.shape =\n",input.shape)
     r = ref_one_hot(input, shape)
     print("---------- pytest ,r = \n",r)
-
+'''
+'''
 def test_one_hot_forward_no_parametrize():
 	print("-------test_one_hot_forward_no_parametrize----------")
 	rng = np.random.RandomState(313)
@@ -87,13 +127,13 @@ if __name__ == '__main__':
 	print("x3 = ",x3)
 	print("x3 = {},type(x3) = {}".format(x3,type(x3)))
 	onehot_ndarray3 = ref_one_hot(x3,(8,))
-	print("onehot_ndarray3 = ",onehot_ndarray3)
+	print("onehot_ndarray3 = \n",onehot_ndarray3)
 
-	print("-------method2-3----------")
-	x3 = np.array([[0,3,4],[7,8,9]])
-	print("x3 = {},type(x3) = {}".format(x3,type(x3)))
-	onehot_ndarray3 = ref_one_hot(x3,(8,))
-	print("onehot_ndarray3 = ",onehot_ndarray3)
+	#print("-------method2-3----------")
+	#x3 = np.array([[0,3,4],[7,8,9]])
+	#print("x3 = {},type(x3) = {}".format(x3,type(x3)))
+	#onehot_ndarray3 = ref_one_hot(x3,(8,))
+	#print("onehot_ndarray3 = ",onehot_ndarray3)
 
 
 
